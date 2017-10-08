@@ -14,9 +14,19 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log('new user connected');
 
+    socket.on('createMessage', (message) => {
+        console.log('createMessage', message);
+    })
+
     socket.on('disconnect', () => {
         console.log('user disconnected !!');
-    })
+    });
+
+    socket.emit('newMessage', {
+        from: 'server',
+        text: 'this comes from my bites :)',
+        createdAt: 234234324
+    });
 })
 
 server.listen(port, () => {
