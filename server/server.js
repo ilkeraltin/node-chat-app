@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const http = require('http');
+const {isRealString} = require('./utils/validation');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -19,8 +20,17 @@ io.on('connection', (socket) => {
     console.log('new user connected');
 
     socket.emit('newMessage', generateMessage('Admin','Welcome to the ChatApp'));
-
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined!'));
+
+
+    socket.on('join',(params, callback) => {
+        if (!isRealString(params.name) || !isRealString(params.room)) {
+            callback('name and room needed!');
+        }
+
+        callback();
+
+    })
 
     socket.on('createMessage', (message,callback) => {
         console.log('createMessage', message);
@@ -31,6 +41,8 @@ io.on('connection', (socket) => {
     socket.on('createLocationMessage', (coords) => {
         io.emit('newLocationMessage', generateLocationMessage('Admin',coords.latitude, coords.longitude));
     })
+
+
 
     socket.on('disconnect', () => {
         console.log('user disconnected !!');
